@@ -85,7 +85,7 @@ detalles_planificaciones = []
 contador_planificacion = 1
 
 for planificacion, valor in y.items():
-    if valor.varValue > 0:  # Solo planificaciones seleccionadas
+    if valor.varValue > 0:  
         coste_total_planificacion = sum(costes_medios.get(operacion, 0) for operacion in planificacion)
         detalles = {
             "Planificación": f"Planificación {contador_planificacion}",
