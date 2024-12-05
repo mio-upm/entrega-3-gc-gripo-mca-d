@@ -7,30 +7,23 @@ Created on Tue Dec  3 15:54:47 2024
 import pandas as pd
 import pulp as lp
 
-# Paso 1: Cargar los archivos Excel. Utilizamos el directorio propio para cargar los arvhivos.
+# Paso 1: Cargar los archivos Excel. Utilizamos el directorio propio para cargar los archivos.
 operaciones_path = r"C:\Users\User\Desktop\Master Organización Industrial\Asiganturas 1º cuatri\Métodos Cuantitativos Avanzados\Entrega 3\241204_datos_operaciones_programadas.xlsx"
 costes_path = r"C:\Users\User\Desktop\Master Organización Industrial\Asiganturas 1º cuatri\Métodos Cuantitativos Avanzados\Entrega 3\241204_costes.xlsx"
 costes_df = pd.read_excel(costes_path)
 operaciones_df = pd.read_excel(operaciones_path)
 
-#Paso 2: Limpiar y preparar los datos
+# Paso 2: Limpiar y preparar los datos
 costes_df.rename(columns=lambda x: x.strip(), inplace=True)
 operaciones_df.rename(columns=lambda x: x.strip(), inplace=True)
 costes_df.set_index("Unnamed: 0", inplace=True)
 
-# Filtrar las operaciones de los cuatro servicios indicados
-especialidades = [
-    "Cardiología Pediátrica",
-    "Cirugía Cardíaca Pediátrica",
-    "Cirugía Cardiovascular",
-    "Cirugía General y del Aparato Digestivo"
-]
-operaciones_filtradas = operaciones_df[operaciones_df["Especialidad quirúrgica"].isin(especialidades)]
-operaciones_filtradas.loc[:, "Hora inicio"] = pd.to_datetime(operaciones_filtradas["Hora inicio"])
-operaciones_filtradas.loc[:, "Hora fin"] = pd.to_datetime(operaciones_filtradas["Hora fin"])
+# Convertir las columnas "Hora inicio" y "Hora fin" a formato datetime
+operaciones_df.loc[:, "Hora inicio"] = pd.to_datetime(operaciones_df["Hora inicio"])
+operaciones_df.loc[:, "Hora fin"] = pd.to_datetime(operaciones_df["Hora fin"])
 
 # Extraer operaciones
-operaciones = operaciones_filtradas["Código operación"].tolist()
+operaciones = operaciones_df["Código operación"].tolist()  # Lista de códigos de operación
 n_operaciones = len(operaciones)
 
 # Paso 3: Generar matriz de incompatibilidades para determinar qué operaciones no pueden realizarse en el mismo quirófano debido a solapamientos en sus horarios.
@@ -39,8 +32,8 @@ incompatibility_matrix = pd.DataFrame(0, index=operaciones, columns=operaciones)
 for i in range(n_operaciones):
     for j in range(n_operaciones):  # Asegurar que todas las operaciones se comparan
         if i != j:  # No es necesario comparar la misma operación
-            op1_inicio, op1_fin = operaciones_filtradas.iloc[i]["Hora inicio"], operaciones_filtradas.iloc[i]["Hora fin"]
-            op2_inicio, op2_fin = operaciones_filtradas.iloc[j]["Hora inicio"], operaciones_filtradas.iloc[j]["Hora fin"]
+            op1_inicio, op1_fin = operaciones_df.iloc[i]["Hora inicio"], operaciones_df.iloc[i]["Hora fin"]
+            op2_inicio, op2_fin = operaciones_df.iloc[j]["Hora inicio"], operaciones_df.iloc[j]["Hora fin"]
             
             # Detectar solapamiento
             if not (op1_fin <= op2_inicio or op2_fin <= op1_inicio):  # Condición correcta para solapamiento
